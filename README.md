@@ -51,6 +51,7 @@ typedef struct {
     int size;        // 当前元素个数
     int capacity;    // 当前容量
 } MinHeap;
+```
 2.4 数据结构图示
 text
 堆内元素排序示例（按优先级从高到低）：
@@ -67,7 +68,7 @@ text
 3.1 多级优先级比较算法
 本系统设计了三级比较规则，确保任务调度既考虑用户优先级，又兼顾执行效率：
 
-c
+```c
 int compare(Task* a, Task* b) {
     // 第一级：用户优先级（数值越小越优先）
     if (a->priority != b->priority) {
@@ -81,11 +82,12 @@ int compare(Task* a, Task* b) {
     return (int)difftime(a->submitTime, b->submitTime);
 }
 算法时间复杂度：O(1)
+```
 
 3.2 堆插入算法（上浮调整）
 原理：新元素插入堆尾，然后向上调整至合适位置，维持堆性质。
 
-c
+```c
 void insertTask(MinHeap* heap, Task* newTask) {
     // 1. 插入到堆尾
     int i = heap->size++;
@@ -97,6 +99,7 @@ void insertTask(MinHeap* heap, Task* newTask) {
         i = (i-1)/2;
     }
 }
+```
 算法流程图
 text
 开始
@@ -119,7 +122,7 @@ text
 3.3 堆删除算法（下沉调整）
 原理：取出堆顶元素后，将堆尾元素移至堆顶，然后向下调整至合适位置。
 
-c
+```c
 void printTask(MinHeap* heap) {
     // 1. 取出堆顶任务
     Task* task = heap->heap[0];
@@ -153,6 +156,7 @@ void heapify(MinHeap* heap, int i) {
         i = smaller;
     }
 }
+```
 算法流程图
 text
 开始
@@ -176,21 +180,23 @@ text
 
 3.4 遍历与撤销算法
 查看所有任务
-c
+```c
 void viewAllTasks(MinHeap* heap) {
     // 创建临时副本并排序输出
     // 不改变原堆结构
 }
 时间复杂度：O(n log n)
+```
 
 撤销指定任务
-c
+```c
 int cancelTask(MinHeap* heap, int taskId) {
     // 1. 遍历查找目标任务
     // 2. 用堆尾元素替换
     // 3. 根据情况向上或向下调整
 }
 时间复杂度：O(n)
+```
 
 四、业务流程设计
 4.1 系统整体流程图
@@ -249,18 +255,19 @@ main.c（主控模块）
 
 解决方案：设计三级比较器，逐级比较，提前返回结果。
 
-c
+```c
 int compare(Task* a, Task* b) {
     if (a->priority != b->priority) return a->priority - b->priority;
     if (a->pageNum != b->pageNum) return a->pageNum - b->pageNum;
     return (int)difftime(a->submitTime, b->submitTime);
 }
+```
 5.2 难点二：查看任务时不破坏原堆结构
 问题描述：遍历输出时需要按优先级顺序，但不能修改原堆。
 
 解决方法：创建临时副本，在副本上执行堆排序。
 
-c
+```c
 void viewAllTasks(MinHeap* heap) {
     // 创建临时数组
     Task* temp[MAX_SIZE];
@@ -269,21 +276,23 @@ void viewAllTasks(MinHeap* heap) {
     // 在临时数组上构建堆并逐个输出
     // 原堆结构保持不变
 }
+```
 5.3 难点三：动态数组扩容
 问题描述：固定数组存在容量上限，当任务数超过上限时无法继续提交；而设置过大的固定数组又会浪费内存。
 
 解决方案：采用动态数组实现堆，支持自动扩容和可选的缩容机制。
 
 （1）动态数组数据结构设计
-c
+```c
 // 动态数组实现的最小堆（替代固定数组）
 typedef struct {
     Task** heap;     // 动态分配的数组指针
     int size;        // 当前元素个数
     int capacity;    // 当前容量
 } MinHeap;
+```
 （2）扩容算法实现
-c
+```c
 static int expandHeap(MinHeap* heap) {
     int newCapacity = heap->capacity * GROWTH_FACTOR;
     Task** newHeap = (Task**)realloc(heap->heap, sizeof(Task*) * newCapacity);
@@ -298,6 +307,7 @@ static int expandHeap(MinHeap* heap) {
     printf("堆已自动扩容：%d → %d\n", heap->capacity / GROWTH_FACTOR, heap->capacity);
     return 1;
 }
+```
 六、其他
 6.1 系统特色
 多级优先级调度：综合考虑优先级、页数和提交时间，比简单FCFS更灵活
